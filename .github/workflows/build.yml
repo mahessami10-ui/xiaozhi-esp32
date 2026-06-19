@@ -5,9 +5,16 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
 
 jobs:
   build:
+    name: Build bread-compact-wifi
     runs-on: ubuntu-latest
 
     container:
@@ -17,13 +24,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build bread-compact-wifi
+      - name: Build Firmware
+        shell: bash
         run: |
           source $IDF_PATH/export.sh
           python scripts/release.py bread-compact-wifi --name bread-compact-wifi
 
-      - name: Upload firmware
+      - name: Upload Firmware
         uses: actions/upload-artifact@v4
         with:
           name: bread-compact-wifi
-          path: build/merged-binary.bin
+          path: |
+            build/merged-binary.bin
+            build/*.bin
+          if-no-files-found: warn
